@@ -1,8 +1,182 @@
+var hashedPoints = new Set()
+references.markers = []
+
+function updateHashVisuals(pointindex) {
+    let ref = references.markers[pointindex]
+    if (!ref) return
+
+    if (hashedPoints.has(pointindex)) {
+        if (!ref.hashCircle) {
+            ref.hashCircle = L.circleMarker(ref.marker.getLatLng(), {
+                radius: 20,
+                color: '#ff0000',
+                weight: 3,
+                fillColor: '#ff0000',
+                fillOpacity: 0.15,
+                interactive: false
+            })
+            ref.hashCircle.addTo(ref.layerGroup)
+        }
+        ref.marker.getElement()?.classList.add('hashed-marker')
+    } else {
+        if (ref.hashCircle) {
+            ref.layerGroup.removeLayer(ref.hashCircle)
+            ref.hashCircle = null
+        }
+        ref.marker.getElement()?.classList.remove('hashed-marker')
+    }
+}
+
+function updateHashButton(pointindex) {
+    information_hash_button.classList.remove('hidden')
+    if (hashedPoints.has(pointindex)) {
+        information_hash_button.textContent = 'Unmark Hash'
+        information_hash_button.classList.add('hashed')
+    } else {
+        information_hash_button.textContent = 'Mark for Hash'
+        information_hash_button.classList.remove('hashed')
+    }
+}
+
+function toggleHash(pointindex) {
+    if (hashedPoints.has(pointindex)) {
+        hashedPoints.delete(pointindex)
+    } else {
+        hashedPoints.add(pointindex)
+    }
+    updateHashVisuals(pointindex)
+    updateHashButton(pointindex)
+    updateHashRoute()
+}
+
+function distanceSquared(markerA, markerB) {
+    let dx = markerA.xPos - markerB.xPos
+    let dy = markerA.yPos - markerB.yPos
+    return dx * dx + dy * dy
+}
+
+function getAlphaIndex() {
+    return markers.findIndex(data => data.name === 'Alpha' && data.category === 'Satellite Dishes')
+}
+
+function computeHashRoute() {
+    let alphaIndex = getAlphaIndex()
+    if (alphaIndex === -1) return []
+
+    let visitIndices = new Set([alphaIndex])
+    for (let pointindex of hashedPoints) {
+        if (markers[pointindex].category === 'Satellite Dishes') {
+            visitIndices.add(pointindex)
+        }
+    }
+
+    if (visitIndices.size <= 1) return []
+
+    let unvisited = new Set(visitIndices)
+    let route = [alphaIndex]
+    unvisited.delete(alphaIndex)
+    let current = alphaIndex
+
+    while (unvisited.size > 0) {
+        let nearest = null
+        let nearestDist = Infinity
+        for (let index of unvisited) {
+            let dist = distanceSquared(markers[current], markers[index])
+            if (dist < nearestDist) {
+                nearestDist = dist
+                nearest = index
+            }
+        }
+        route.push(nearest)
+        unvisited.delete(nearest)
+        current = nearest
+    }
+    route.push(alphaIndex)
+    return route
+}
+
+var hashRouteLayer = null
+
+function segmentArrowAngle(fromMarker, toMarker) {
+    let from = convertGameToLeaflet([fromMarker.xPos, fromMarker.yPos])
+    let to = convertGameToLeaflet([toMarker.xPos, toMarker.yPos])
+    let dLat = to[0] - from[0]
+    let dLng = to[1] - from[1]
+    return Math.atan2(dLng, dLat) * 180 / Math.PI
+}
+
+function arrowPolygonLatLngs(center, angleDeg, size) {
+    let rad = angleDeg * Math.PI / 180
+    let tip = [
+        center[0] + Math.cos(rad) * size,
+        center[1] + Math.sin(rad) * size
+    ]
+    let backRad = rad + Math.PI
+    let baseCenter = [
+        center[0] + Math.cos(backRad) * size * 0.65,
+        center[1] + Math.sin(backRad) * size * 0.65
+    ]
+    let wing = size * 0.5
+    let left = [
+        baseCenter[0] + Math.cos(rad + Math.PI / 2) * wing,
+        baseCenter[1] + Math.sin(rad + Math.PI / 2) * wing
+    ]
+    let right = [
+        baseCenter[0] + Math.cos(rad - Math.PI / 2) * wing,
+        baseCenter[1] + Math.sin(rad - Math.PI / 2) * wing
+    ]
+    return [tip, left, right]
+}
+
+function addHashRouteArrows(route, layerGroup) {
+    for (let i = 0; i < route.length - 1; i++) {
+        let from = markers[route[i]]
+        let to = markers[route[i + 1]]
+        if (from.xPos === to.xPos && from.yPos === to.yPos) continue
+
+        let position = convertGameToLeaflet([(from.xPos + to.xPos) / 2, (from.yPos + to.yPos) / 2])
+        let angle = segmentArrowAngle(from, to)
+        L.polygon(arrowPolygonLatLngs(position, angle, 8), {
+            color: '#cc0000',
+            weight: 1,
+            fillColor: '#ff0000',
+            fillOpacity: 1,
+            interactive: false
+        }).addTo(layerGroup)
+    }
+}
+
+function updateHashRoute() {
+    if (hashRouteLayer) {
+        map.removeLayer(hashRouteLayer)
+        hashRouteLayer = null
+    }
+
+    let route = computeHashRoute()
+    if (route.length < 2) return
+
+    hashRouteLayer = L.layerGroup()
+    let coordinates = route.map(pointindex => convertGameToLeaflet([markers[pointindex].xPos, markers[pointindex].yPos]))
+    let routeLine = L.polyline(coordinates, {
+        smoothFactor: 0,
+        color: '#ff0000',
+        weight: 2,
+        lineCap: 'round',
+        lineJoin: 'round',
+        interactive: false
+    })
+    routeLine.addTo(hashRouteLayer)
+    addHashRouteArrows(route, hashRouteLayer)
+    hashRouteLayer.addTo(map)
+    routeLine.bringToBack()
+}
+
 function mapClickEvent() {
     // Reset information text when user clicks off a point
     information_content.dataset.viewedindex = 'none'
     information_header.innerHTML = 'Select a Point'
     information_coords.innerHTML = ''
+    information_hash_button.classList.add('hidden')
     information_text.innerHTML = 'Click on a point on the map to see some information about what it is and where it\'s located, along with some additional pictures that can help you pinpoint <i>exactly</i> where it is and what it looks like.<br><br>Use the <i>Points</i> tab to hide and show certain points on the map.'
     information_images.replaceChildren()
 }
@@ -31,6 +205,7 @@ function pointClickEvent() {
             information_images.appendChild(element)
         })
     }
+    updateHashButton(this.options.pointindex)
 }
 
 function toggleCategoryButton() {
@@ -169,6 +344,11 @@ markers.forEach((data, pointindex) => {
         }))
     }
     marker.addTo(references[formattedid].leafletgroup)
+    references.markers[pointindex] = {
+        marker: marker,
+        hashCircle: null,
+        layerGroup: references[formattedid].leafletgroup
+    }
 })
 
 // Sync UI
@@ -195,6 +375,11 @@ lines.forEach((data, lineindex) => {
     } else {
         polygon.addTo(map)
     }
+})
+
+information_hash_button.addEventListener('click', () => {
+    if (information_content.dataset.viewedindex == 'none') return
+    toggleHash(Number(information_content.dataset.viewedindex))
 })
 
 map.on('click', mapClickEvent)

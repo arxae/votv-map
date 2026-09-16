@@ -86,6 +86,9 @@ body {
 .leaflet-marker-icon {
     filter: drop-shadow(2px 2px 4px #0000004c);
 }
+.leaflet-marker-icon.hashed-marker {
+    filter: drop-shadow(2px 2px 4px #0000004c) sepia(1) saturate(6) hue-rotate(-30deg) brightness(0.95);
+}
 .leaflet-popup-content-wrapper {
     border-radius: 0 !important;
     background-color: #121212;
@@ -163,6 +166,21 @@ body {
     padding: 2px;
     margin: 6px 1px;
     overflow-wrap: anywhere;
+}
+#information_hash_button {
+    font-family: monospace;
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid green;
+    background-color: transparent;
+    color: #ffffff;
+    padding: 4px 8px;
+    margin: 8px 0;
+    display: block;
+}
+#information_hash_button.hashed {
+    border-color: #ff4444;
+    color: #ff6666;
 }
 
 /* Settings container and tabs */

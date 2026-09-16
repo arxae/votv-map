@@ -35,6 +35,15 @@ const categories = {
 const markers = [
     // Satellites
     {
+        name: "Alpha",
+        description: "Home base",
+        related_images: [],
+        category: "Satellite Dishes",
+        icon: "./icons/a.png",
+        xPos: 0,
+        yPos: 0
+    },
+    {
         name: "Bravo",
         description: "",
         related_images: [],
