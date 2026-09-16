@@ -167,7 +167,13 @@ body {
     margin: 6px 1px;
     overflow-wrap: anywhere;
 }
-#information_hash_button {
+#information_mark_buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 8px 0;
+}
+.information_mark_button {
     font-family: monospace;
     font-size: 13px;
     cursor: pointer;
@@ -175,12 +181,18 @@ body {
     background-color: transparent;
     color: #ffffff;
     padding: 4px 8px;
-    margin: 8px 0;
-    display: block;
 }
-#information_hash_button.hashed {
+#information_hash_button.marked {
     border-color: #ff4444;
     color: #ff6666;
+}
+#information_repair_button.marked {
+    border-color: #44cc66;
+    color: #66dd88;
+}
+#information_upgrade_button.marked {
+    border-color: #4488ff;
+    color: #66aaff;
 }
 
 /* Settings container and tabs */
