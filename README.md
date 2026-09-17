@@ -1,11 +1,5 @@
-# Voices of the Void Map
-A map for the game [Voices of the Void](https://mrdrnose.itch.io/votv) by [MrDrNose](https://mrdrnose.itch.io/)
+# Vue 3 + TypeScript + Vite
 
-This project is a work of my own and is unofficial.
+This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
-Check me out / Contact me at:\
-Discord? questwalker\
-Email? [QuestwalkerKO@gmail.com](mailto:questwalkerko@gmail.com)\
-Youtube? [Questwalker](https://www.youtube.com/channel/UCTA45ILB7_G_AlH1RfcJWxg)
-
-[Check out the changelog here.](https://questwalker.github.io/votv-map/changelog)
+Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).

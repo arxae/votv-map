@@ -1,0 +1,27 @@
+@import "./haiku.css";
+
+html,
+body,
+#app {
+    height: 100%;
+    margin: 0;
+}
+
+html {
+    color-scheme: light;
+}
+
+body {
+    box-sizing: border-box;
+    background: var(--haiku-desktop-gradient);
+    font-family: var(--haiku-font), serif;
+    color: var(--haiku-text);
+}
+
+#app {
+    width: 100%;
+    max-width: none;
+    border: none;
+    min-height: unset;
+    text-align: unset;
+}

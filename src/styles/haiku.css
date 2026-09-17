@@ -1,0 +1,92 @@
+:root {
+    --haiku-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --haiku-desktop-gradient: linear-gradient(180deg, #6b8fb0 0%, #3f617a 100%);
+    --haiku-frame: #c0c0c0;
+    --haiku-panel: #d4d4d4;
+    --haiku-panel-inner: #ffffff;
+    --haiku-tab-active: #ffcf00;
+    --haiku-tab-active-highlight: #ffe566;
+    --haiku-tab-inactive-hover: #cccccc;
+    --haiku-text: #000000;
+    --haiku-text-muted: #333333;
+    --haiku-border-outer: #000000;
+    --haiku-border-light: #efefef;
+    --haiku-border-mid: #808080;
+    --haiku-border-dark: #404040;
+    --haiku-shadow: 2px 2px 6px rgba(0, 0, 0, 0.45);
+    --haiku-checkbox-mark: #1a56d4;
+    --haiku-button-face-top: #e4e4e4;
+    --haiku-button-face-bottom: #c8c8c8;
+    --haiku-button-face-pressed-top: #b8b8b8;
+    --haiku-button-face-pressed-bottom: #d0d0d0;
+    --haiku-button-text-disabled: #808080;
+    --haiku-button-face-hover-top: #f6f6f6;
+    --haiku-button-face-hover-bottom: #d6d6d6;
+}
+
+/* Raised push button (Haiku / BeOS style) */
+.haiku-button {
+    display: inline-block;
+    margin: 0;
+    padding: 5px 14px 6px;
+    border: 1px solid var(--haiku-border-outer);
+    background: linear-gradient(
+        180deg,
+        var(--haiku-button-face-top) 0%,
+        var(--haiku-button-face-bottom) 100%
+    );
+    color: var(--haiku-text);
+    font: 12px/1.2 var(--haiku-font);
+    text-align: center;
+    cursor: pointer;
+    box-shadow:
+        inset 1px 1px 0 var(--haiku-border-light),
+        inset -1px -1px 0 var(--haiku-border-mid);
+}
+
+.haiku-button:hover:not(:disabled) {
+    background: linear-gradient(
+        180deg,
+        var(--haiku-button-face-hover-top) 0%,
+        var(--haiku-button-face-hover-bottom) 100%
+    );
+    box-shadow:
+        inset 1px 1px 0 #ffffff,
+        inset -1px -1px 0 #707070;
+}
+
+.haiku-button:active:not(:disabled) {
+    padding: 6px 14px 5px;
+    background: linear-gradient(
+        180deg,
+        var(--haiku-button-face-pressed-top) 0%,
+        var(--haiku-button-face-pressed-bottom) 100%
+    );
+    box-shadow:
+        inset 1px 1px 0 var(--haiku-border-mid),
+        inset -1px -1px 0 var(--haiku-border-light);
+}
+
+.haiku-button:disabled {
+    color: var(--haiku-button-text-disabled);
+    cursor: default;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.35),
+        inset -1px -1px 0 var(--haiku-border-mid);
+}
+
+.haiku-button:focus-visible {
+    outline: 1px dotted var(--haiku-border-dark);
+    outline-offset: 2px;
+}
+
+/* Sunken "well" panel — used for list boxes and window bodies */
+.haiku-well {
+    background: var(--haiku-panel-inner);
+    border: 1px solid;
+    border-color: var(--haiku-border-mid) var(--haiku-border-light)
+        var(--haiku-border-light) var(--haiku-border-mid);
+    box-shadow:
+        inset 1px 1px 0 var(--haiku-border-dark),
+        inset -1px -1px 0 var(--haiku-border-light);
+}

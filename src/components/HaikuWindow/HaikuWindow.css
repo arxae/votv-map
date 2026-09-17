@@ -1,0 +1,76 @@
+.haiku-window {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    font-family: var(--haiku-font);
+    color: var(--haiku-text);
+    background: transparent;
+}
+
+/* Tabs */
+.haiku-window__tabs {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: flex-end;
+    gap: 0;
+    margin-left: 7px;
+    margin-bottom: -1px;
+    position: relative;
+    z-index: 1;
+}
+
+.haiku-tab {
+    margin: 0;
+    padding: 2px 14px 3px;
+    border: 1px solid var(--haiku-border-outer);
+    border-bottom: none;
+    border-radius: 2px 2px 0 0;
+    background: var(--haiku-frame);
+    color: var(--haiku-text);
+    font: bold 11px/1.25 var(--haiku-font);
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.haiku-tab--active {
+    background: var(--haiku-tab-active);
+    border-bottom: 1px solid var(--haiku-tab-active);
+    padding-bottom: 4px;
+    cursor: default;
+    z-index: 2;
+    box-shadow: inset 1px 1px 0 var(--haiku-tab-active-highlight);
+}
+
+/* Inactive tab */
+.haiku-tab:not(.haiku-tab--active) {
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+}
+
+.haiku-tab:not(.haiku-tab--active):hover {
+    background: var(--haiku-tab-inactive-hover);
+}
+
+/* Window frame */
+.haiku-window__frame {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--haiku-border-outer);
+    background: var(--haiku-frame);
+    box-shadow:
+        inset 1px 1px 0 var(--haiku-border-light),
+        inset -1px -1px 0 var(--haiku-border-mid),
+        var(--haiku-shadow);
+}
+
+.haiku-window__body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 2px;
+}
