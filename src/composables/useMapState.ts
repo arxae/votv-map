@@ -35,8 +35,7 @@ const state = reactive({
 	visibleCategories: initialVisibility.visibleCategories,
 	selectedPoi: null as Poi | null,
 	activeTab: "info" as PanelTab,
-	/** Dev overlay: road graph from data_roads.ts */
-	showRoadDebug: true,
+	showRoadDebug: false,
 });
 
 watch(

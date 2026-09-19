@@ -6,11 +6,25 @@ import { gameToLeaflet } from '../components/MapView/coords';
 import { buildRoadGraph } from '../routing/roadGraph';
 import { getRoadNetwork } from '../routing/resolveRoadNetwork';
 import { validateRoadNetwork, validateRoadNetworkData } from '../routing/validateRoadNetwork';
+import { edgeKindColor, edgeKindLabel } from '../routing/edgeKind';
+import { edgeArrowPlacements, edgeDirectionLabel } from '../routing/edgeDirection';
 import { useMapState } from './useMapState';
 
 const ROAD_COLOR = '#e8a317';
 const NODE_COLOR = '#f5d76e';
 const ISSUE_COLOR = '#ff4d4d';
+
+/** Small right-pointing triangle, rotated to `angleDeg` (CSS degrees, 0 = pointing right). */
+function arrowIcon(angleDeg: number, color: string): L.DivIcon {
+    return L.divIcon({
+        className: 'road-debug-arrow-icon',
+        html: `<div style="width:16px;height:16px;display:flex;align-items:center;justify-content:center;transform:rotate(${angleDeg}deg);">
+            <div style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:10px solid ${color};"></div>
+        </div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+    });
+}
 
 export function useRoadDebugLayers(getMap: () => L.Map | null): { dispose: () => void } {
     const mapState = useMapState();
@@ -60,15 +74,23 @@ export function useRoadDebugLayers(getMap: () => L.Map | null): { dispose: () =>
         }
 
         const group = L.layerGroup();
-        const edgeColor = errors.length > 0 ? ISSUE_COLOR : ROAD_COLOR;
 
-        for (const { path } of graph.edges.values()) {
+        for (const { edge, path } of graph.edges.values()) {
             const latLngs = path.map(([x, y]) => gameToLeaflet(x, y));
+            const color = errors.length > 0 ? ISSUE_COLOR : edgeKindColor(edge.kind, ROAD_COLOR);
+            const kindSuffix = edge.kind ? ` — ${edgeKindLabel(edge.kind)}` : '';
+            const directionSuffix = edge.direction ? ` (${edgeDirectionLabel(edge.direction)})` : '';
             L.polyline(latLngs, {
-                color: edgeColor,
+                color,
                 weight: 4,
                 opacity: 0.85,
-            }).addTo(group);
+            })
+                .bindTooltip(`${edge.id}${kindSuffix}${directionSuffix}`, { permanent: false, sticky: true })
+                .addTo(group);
+
+            for (const { point, angle } of edgeArrowPlacements(latLngs, edge.direction)) {
+                L.marker(point, { icon: arrowIcon(angle, color), interactive: false }).addTo(group);
+            }
         }
 
         for (const [id, { x, y }] of graph.nodes) {
@@ -80,7 +102,7 @@ export function useRoadDebugLayers(getMap: () => L.Map | null): { dispose: () =>
                 fillColor: '#1a1a1a',
                 fillOpacity: 0.9,
             })
-                .bindTooltip(id, { permanent: false, direction: 'top' })
+                .bindTooltip(`${id} (${x}, ${y})`, { permanent: false, direction: 'top' })
                 .addTo(group);
         }
 

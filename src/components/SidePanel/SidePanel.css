@@ -138,3 +138,60 @@
     outline: 1px dotted var(--haiku-border-dark);
     outline-offset: 2px;
 }
+
+.route-editor-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+}
+
+.route-editor-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.route-editor-tools label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.route-editor-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.route-editor-legend li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.route-editor-legend__swatch {
+    display: inline-block;
+    width: 12px;
+    height: 3px;
+    flex-shrink: 0;
+}
+
+.route-editor-export {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    font-family: monospace;
+    font-size: 11px;
+    background: var(--haiku-panel-inner);
+    border: 1px solid var(--haiku-border-outer);
+    color: var(--haiku-text);
+    box-sizing: border-box;
+    padding: 6px;
+}

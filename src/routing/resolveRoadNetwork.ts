@@ -18,6 +18,9 @@ export function resolveRoadNetwork(
     }
 
     const endpointIds = new Set<string>();
+    for (const junction of data.junctions) {
+        endpointIds.add(junction.id);
+    }
     for (const edge of data.edges) {
         endpointIds.add(edge.from);
         endpointIds.add(edge.to);

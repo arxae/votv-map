@@ -11,11 +11,15 @@ import { genLineId, lines } from '../../data/data_lines';
 import { pois } from '../../data/data_poi';
 import type { Poi } from '../../data/types.ts'
 import { useRoadDebugLayers } from '../../composables/useRoadDebugLayers';
+import { useRoadEditorLayer } from '../../composables/useRoadEditorLayer';
+import { useRoadEditor, handleNodeClick as roadEditorHandleNodeClick } from '../../composables/useRoadEditor';
 
 const mapContainer = ref<HTMLElement | null>(null)
 const mapState = useMapState();
+const roadEditor = useRoadEditor();
 let map: L.Map | null = null
 let roadDebug: ReturnType<typeof useRoadDebugLayers> | null = null;
+let roadEditorLayer: ReturnType<typeof useRoadEditorLayer> | null = null;
 
 const mapTabs = [{ id: 'map', label: 'Map' }]
 
@@ -108,6 +112,11 @@ onMounted(() => {
         const marker = L.marker(gameToLeaflet(poi.X, poi.Y), { icon: icon });
 
         marker.on('click', () => {
+            // Route POI clicks into the road editor while it's actively connecting nodes.
+            if (roadEditor.active && roadEditor.tool === 'connect') {
+                roadEditorHandleNodeClick(poi.Name);
+                return;
+            }
             mapState.selectedPoi = poi;
             mapState.activeTab = 'info';
         });
@@ -135,11 +144,14 @@ onMounted(() => {
     );
 
     roadDebug = useRoadDebugLayers(() => map);
+    roadEditorLayer = useRoadEditorLayer(() => map);
 })
 
 onUnmounted(() => {
     roadDebug?.dispose();
     roadDebug = null;
+    roadEditorLayer?.dispose();
+    roadEditorLayer = null;
     map?.remove()
     map = null
 })
@@ -164,7 +176,7 @@ function syncPoiVisibility(visibleCategories: Record<string, boolean>) {
     if (!map) return;
 
     for (const [poi, marker] of poiLayers) {
-        const visible = !poi.Category || visibleCategories[poi.Category];
+        const visible = poi.Category === undefined || visibleCategories[poi.Category];
         if (visible) {
             marker.addTo(map);
         } else {

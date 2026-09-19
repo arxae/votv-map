@@ -67,8 +67,13 @@ export interface RoadEdge {
     from: string;
     to: string;
     path?: [number, number][];
-    /** Reserved for future rules (e.g. shortcuts). Defaults to road. */
-    kind?: 'road' | 'shortcut';
+    /**
+     * Routing behavior, applied later. Defaults to 'road' when omitted.
+     * 'optional' edges are meant to be individually toggled on/off.
+     */
+    kind?: 'road' | 'shortcut' | 'risky-shortcut' | 'optional' | 'offroad';
+    /** Travel direction. Defaults to 'bidirectional' when omitted. */
+    direction?: 'bidirectional' | 'forward' | 'backward';
 }
 
 /** Authoring format: POI endpoints come from data_poi.ts at resolve time. */

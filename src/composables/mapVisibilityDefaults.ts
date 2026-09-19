@@ -20,7 +20,7 @@ export function buildDefaultVisibleLines(): Record<string, boolean> {
 export function buildDefaultVisbileCategories(): Record<string, boolean> {
     const result: Record<string, boolean> = {};
     for (const poi of pois) {
-        if (poi.Category) {
+        if (poi.Category !== undefined) {
             result[poi.Category] = DEFAULT_VISIBLE_POI_CATEGORIES.has(poi.Category);
         }
     }
