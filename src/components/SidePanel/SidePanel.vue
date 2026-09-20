@@ -14,6 +14,13 @@ import {
     exportRoadNetwork,
 } from '../../composables/useRoadEditor';
 import { EDGE_KIND_CYCLE } from '../../routing/edgeKind';
+import {
+    POI_MARKING_ORDER,
+    POI_MARKING_COLORS,
+    POI_MARKING_LABELS,
+    isPoiMarked,
+    togglePoiMarking,
+} from '../../composables/usePoiMarkings';
 
 const emit = defineEmits<{
     layoutChange: []
@@ -80,6 +87,21 @@ onUnmounted(() => {
                         <dd>{{ mapState.selectedPoi.Category }}</dd>
                     </dl>
                     <p v-if="mapState.selectedPoi.Description" class="poi-detail__description" v-html="mapState.selectedPoi.Description"></p>
+
+                    <p class="pane-heading">GPS markings</p>
+                    <ul class="toggle-list haiku-well">
+                        <li v-for="kind in POI_MARKING_ORDER" :key="kind">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    :checked="isPoiMarked(mapState.selectedPoi.Name, kind)"
+                                    @change="togglePoiMarking(mapState.selectedPoi.Name, kind)"
+                                />
+                                <span class="poi-marking-swatch" :style="{ borderColor: POI_MARKING_COLORS[kind] }"></span>
+                                {{ POI_MARKING_LABELS[kind] }}
+                            </label>
+                        </li>
+                    </ul>
                 </div>
                 <p v-else class="placeholder">Select a map point to see details here.</p>
             </div>

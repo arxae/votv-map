@@ -13,6 +13,7 @@ import type { Poi } from '../../data/types.ts'
 import { useRoadDebugLayers } from '../../composables/useRoadDebugLayers';
 import { useRoadEditorLayer } from '../../composables/useRoadEditorLayer';
 import { useRoadEditor, handleNodeClick as roadEditorHandleNodeClick } from '../../composables/useRoadEditor';
+import { usePoiMarkingLayers } from '../../composables/usePoiMarkingLayers';
 
 const mapContainer = ref<HTMLElement | null>(null)
 const mapState = useMapState();
@@ -20,6 +21,7 @@ const roadEditor = useRoadEditor();
 let map: L.Map | null = null
 let roadDebug: ReturnType<typeof useRoadDebugLayers> | null = null;
 let roadEditorLayer: ReturnType<typeof useRoadEditorLayer> | null = null;
+let poiMarkingLayer: ReturnType<typeof usePoiMarkingLayers> | null = null;
 
 const mapTabs = [{ id: 'map', label: 'Map' }]
 
@@ -145,6 +147,7 @@ onMounted(() => {
 
     roadDebug = useRoadDebugLayers(() => map);
     roadEditorLayer = useRoadEditorLayer(() => map);
+    poiMarkingLayer = usePoiMarkingLayers(() => map);
 })
 
 onUnmounted(() => {
@@ -152,6 +155,8 @@ onUnmounted(() => {
     roadDebug = null;
     roadEditorLayer?.dispose();
     roadEditorLayer = null;
+    poiMarkingLayer?.dispose();
+    poiMarkingLayer = null;
     map?.remove()
     map = null
 })

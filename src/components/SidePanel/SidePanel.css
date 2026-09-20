@@ -80,6 +80,16 @@
     color: var(--haiku-text);
 }
 
+.poi-marking-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid;
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
 .toggle-list {
     list-style: none;
     margin: 0;
