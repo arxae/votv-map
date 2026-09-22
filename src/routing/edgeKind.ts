@@ -12,7 +12,6 @@ export const EDGE_KIND_CYCLE: EdgeKindInfo[] = [
     { kind: undefined, label: 'Road', color: '' },
     { kind: 'shortcut', label: 'Shortcut', color: '#38bdf8' },
     { kind: 'risky-shortcut', label: 'Risky Shortcut', color: '#f97316' },
-    { kind: 'optional', label: 'Optional', color: '#a78bfa' },
     { kind: 'offroad', label: 'Offroad', color: '#a16207' },
 ];
 

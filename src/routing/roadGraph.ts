@@ -10,7 +10,7 @@ export interface RoadGraphEdge {
 export interface RoadGraph {
     nodes: Map<string, { x: number; y: number }>;
     edges: Map<string, RoadGraphEdge>;
-    /** Undirected adjacency: node id -> neighbors */
+    /** Adjacency: node id -> neighbors reachable by traveling that edge (respects RoadEdge.direction). */
     neighbors: Map<string, { nodeId: string; edgeId: string; length: number }[]>;
 }
 
@@ -38,8 +38,9 @@ export function buildRoadGraph(network: RoadNetwork): RoadGraph {
         const path = resolveEdgePath(network, edge);
         const length = edgeLength(network, edge);
         edges.set(edge.id, { edge, path, length });
-        addNeighbor(edge.from, edge.to, edge.id, length);
-        addNeighbor(edge.to, edge.from, edge.id, length);
+        // 'forward' = from -> to only, 'backward' = to -> from only, otherwise both.
+        if (edge.direction !== 'backward') addNeighbor(edge.from, edge.to, edge.id, length);
+        if (edge.direction !== 'forward') addNeighbor(edge.to, edge.from, edge.id, length);
     }
 
     return { nodes, edges, neighbors };

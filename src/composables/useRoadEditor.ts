@@ -13,7 +13,6 @@ import { reactive } from 'vue';
 import type { RoadJunction, RoadEdge } from '../data/types';
 import { roadNetworkData } from '../data/data_roads';
 import { pois } from '../data/data_poi';
-import { useMapState } from './useMapState';
 import { nextEdgeKind } from '../routing/edgeKind';
 import { nextEdgeDirection } from '../routing/edgeDirection';
 
@@ -24,6 +23,7 @@ export type RoadEditTool =
     | 'edit-path'
     | 'set-type'
     | 'set-direction'
+    | 'set-tag'
     | 'delete';
 
 interface RoadEditorState {
@@ -44,8 +44,6 @@ const state = reactive<RoadEditorState>({
     exportText: '',
 });
 
-let previousShowRoadDebug = false;
-
 function cloneNetwork(): void {
     state.junctions = roadNetworkData.junctions.map((j) => ({ ...j }));
     state.edges = roadNetworkData.edges.map((e) => ({
@@ -64,17 +62,13 @@ export function startRoadEdit(): void {
     state.tool = 'select';
     state.connectFrom = null;
     state.exportText = '';
-
-    const mapState = useMapState();
-    previousShowRoadDebug = mapState.showRoadDebug;
-    mapState.showRoadDebug = false;
 }
 
 /**
  * Applies the working copy to the live roadNetworkData for the rest of this
- * session (so the debug overlay reflects it immediately). This is an
- * in-memory mutation only — nothing is written to disk, so a page refresh
- * reverts to the data_roads.ts source.
+ * session (so the map reflects it immediately). This is an in-memory
+ * mutation only — nothing is written to disk, so a page refresh reverts to
+ * the data_roads.ts source.
  */
 export function stopRoadEdit(): void {
     roadNetworkData.junctions = state.junctions.map((j) => ({ ...j }));
@@ -85,7 +79,6 @@ export function stopRoadEdit(): void {
 
     state.active = false;
     state.connectFrom = null;
-    useMapState().showRoadDebug = previousShowRoadDebug;
 }
 
 export function setRoadEditTool(tool: RoadEditTool): void {
@@ -175,6 +168,14 @@ export function cycleEdgeDirection(edgeId: string): void {
     edge.direction = nextEdgeDirection(edge.direction);
 }
 
+/** Pass null (or an empty/whitespace-only string) to clear the edge's tag. */
+export function setEdgeTag(edgeId: string, rawTag: string | null): void {
+    const edge = state.edges.find((e) => e.id === edgeId);
+    if (!edge) return;
+    const tag = rawTag?.trim();
+    edge.tag = tag ? tag : undefined;
+}
+
 export function connectNodes(a: string, b: string): void {
     if (a === b) return;
     const id = `${a}-to-${b}`;
@@ -205,11 +206,12 @@ function generateExport(): string {
     for (const e of state.edges) {
         const kindPart = e.kind ? `, kind: '${e.kind}'` : '';
         const directionPart = e.direction ? `, direction: '${e.direction}'` : '';
+        const tagPart = e.tag ? `, tag: '${e.tag}'` : '';
         if (e.path && e.path.length > 0) {
             const path = e.path.map(([x, y]) => `[${x}, ${y}]`).join(', ');
-            lines.push(`        { id: '${e.id}', from: '${e.from}', to: '${e.to}', path: [${path}]${kindPart}${directionPart} },`);
+            lines.push(`        { id: '${e.id}', from: '${e.from}', to: '${e.to}', path: [${path}]${kindPart}${directionPart}${tagPart} },`);
         } else {
-            lines.push(`        { id: '${e.id}', from: '${e.from}', to: '${e.to}'${kindPart}${directionPart} },`);
+            lines.push(`        { id: '${e.id}', from: '${e.from}', to: '${e.to}'${kindPart}${directionPart}${tagPart} },`);
         }
     }
     lines.push("    ]");

@@ -23,6 +23,7 @@ import {
     deletePathPoint,
     cycleEdgeKind,
     cycleEdgeDirection,
+    setEdgeTag,
 } from './useRoadEditor';
 
 const JUNCTION_ICON = L.divIcon({
@@ -158,7 +159,8 @@ export function useRoadEditorLayer(getMap: () => L.Map | null): { dispose: () =>
             const bindEdgeTooltip = () => {
                 const kindSuffix = edge.kind ? ` — ${edgeKindLabel(edge.kind)}` : '';
                 const directionSuffix = edge.direction ? ` (${edgeDirectionLabel(edge.direction)})` : '';
-                edgeLine.bindTooltip(`${edge.id}${kindSuffix}${directionSuffix}`, { permanent: false, sticky: true });
+                const tagSuffix = edge.tag ? ` [${edge.tag}]` : '';
+                edgeLine.bindTooltip(`${edge.id}${kindSuffix}${directionSuffix}${tagSuffix}`, { permanent: false, sticky: true });
             };
             bindEdgeTooltip();
             tooltipBindings.push(bindEdgeTooltip);
@@ -176,6 +178,15 @@ export function useRoadEditorLayer(getMap: () => L.Map | null): { dispose: () =>
                     }
                     if (editor.tool === 'set-direction') {
                         cycleEdgeDirection(edge.id);
+                        return;
+                    }
+                    if (editor.tool === 'set-tag') {
+                        const input = window.prompt(
+                            `Tag for "${edge.id}" (empty to remove):`,
+                            edge.tag ?? ''
+                        );
+                        if (input === null) return; // cancelled
+                        setEdgeTag(edge.id, input);
                         return;
                     }
                     if (editor.tool === 'edit-path') {

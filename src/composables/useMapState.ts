@@ -35,7 +35,7 @@ const state = reactive({
 	visibleCategories: initialVisibility.visibleCategories,
 	selectedPoi: null as Poi | null,
 	activeTab: "info" as PanelTab,
-	showRoadDebug: false,
+	showGpsRoute: true,
 });
 
 watch(

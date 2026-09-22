@@ -10,18 +10,18 @@ import { useMapState } from '../../composables/useMapState';
 import { genLineId, lines } from '../../data/data_lines';
 import { pois } from '../../data/data_poi';
 import type { Poi } from '../../data/types.ts'
-import { useRoadDebugLayers } from '../../composables/useRoadDebugLayers';
 import { useRoadEditorLayer } from '../../composables/useRoadEditorLayer';
 import { useRoadEditor, handleNodeClick as roadEditorHandleNodeClick } from '../../composables/useRoadEditor';
 import { usePoiMarkingLayers } from '../../composables/usePoiMarkingLayers';
+import { useGpsRouteLayer } from '../../composables/useGpsRouteLayer';
 
 const mapContainer = ref<HTMLElement | null>(null)
 const mapState = useMapState();
 const roadEditor = useRoadEditor();
 let map: L.Map | null = null
-let roadDebug: ReturnType<typeof useRoadDebugLayers> | null = null;
 let roadEditorLayer: ReturnType<typeof useRoadEditorLayer> | null = null;
 let poiMarkingLayer: ReturnType<typeof usePoiMarkingLayers> | null = null;
+let gpsRouteLayer: ReturnType<typeof useGpsRouteLayer> | null = null;
 
 const mapTabs = [{ id: 'map', label: 'Map' }]
 
@@ -145,18 +145,18 @@ onMounted(() => {
         { deep: true }
     );
 
-    roadDebug = useRoadDebugLayers(() => map);
     roadEditorLayer = useRoadEditorLayer(() => map);
     poiMarkingLayer = usePoiMarkingLayers(() => map);
+    gpsRouteLayer = useGpsRouteLayer(() => map);
 })
 
 onUnmounted(() => {
-    roadDebug?.dispose();
-    roadDebug = null;
     roadEditorLayer?.dispose();
     roadEditorLayer = null;
     poiMarkingLayer?.dispose();
     poiMarkingLayer = null;
+    gpsRouteLayer?.dispose();
+    gpsRouteLayer = null;
     map?.remove()
     map = null
 })

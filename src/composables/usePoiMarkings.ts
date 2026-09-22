@@ -66,6 +66,27 @@ export function isPoiMarked(poiName: string, kind: PoiMarkingKind): boolean {
     return (state[poiName] ?? []).includes(kind);
 }
 
+/** The highest-priority active marking for a POI (POI_MARKING_ORDER order), or null if unmarked. */
+export function topPoiMarking(poiName: string): PoiMarkingKind | null {
+    const marks = state[poiName];
+    if (!marks) return null;
+    return POI_MARKING_ORDER.find((kind) => marks.includes(kind)) ?? null;
+}
+
+export function clearPoiMarkings(poiName: string): void {
+    delete state[poiName];
+}
+
+export function clearAllPoiMarkings(): void {
+    for (const poiName of Object.keys(state)) {
+        delete state[poiName];
+    }
+}
+
+export function hasAnyPoiMarkings(): boolean {
+    return Object.keys(state).length > 0;
+}
+
 export function togglePoiMarking(poiName: string, kind: PoiMarkingKind): void {
     const current = state[poiName] ?? [];
     if (current.includes(kind)) {

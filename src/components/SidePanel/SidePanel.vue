@@ -20,7 +20,17 @@ import {
     POI_MARKING_LABELS,
     isPoiMarked,
     togglePoiMarking,
+    getPoiMarkings,
 } from '../../composables/usePoiMarkings';
+import { useGpsRoadKindSettings } from '../../composables/useGpsRouteSettings';
+import { useGpsTagSettings, listRoadTags } from '../../composables/useGpsTagSettings';
+import {
+    useGpsProgress,
+    completeStop,
+    resetGpsProgress,
+    resetGpsRoute,
+    GPS_START_POI,
+} from '../../composables/useGpsProgress';
 
 const emit = defineEmits<{
     layoutChange: []
@@ -35,6 +45,9 @@ const tabs: { id: PanelTab; label: string }[] = [
 
 const mapState = useMapState();
 const roadEditor = useRoadEditor();
+const gpsRoadKinds = useGpsRoadKindSettings();
+const gpsTags = useGpsTagSettings();
+const gpsProgress = useGpsProgress();
 
 // The default "Road" kind has no fixed color (each layer uses its own base
 // color), so the legend shows it as the editor's own road color.
@@ -102,6 +115,15 @@ onUnmounted(() => {
                             </label>
                         </li>
                     </ul>
+
+                    <button
+                        v-if="getPoiMarkings(mapState.selectedPoi.Name).length > 0"
+                        type="button"
+                        class="haiku-button"
+                        @click="completeStop(mapState.selectedPoi.Name)"
+                    >
+                        Complete
+                    </button>
                 </div>
                 <p v-else class="placeholder">Select a map point to see details here.</p>
             </div>
@@ -132,11 +154,64 @@ onUnmounted(() => {
             <button type="button" class="haiku-button" @click="resetVisibility()">
                 Reset visibility to defaults
             </button>
-            <p class="pane-heading">Road network (debug)</p>
-            <label class="toggle-list haiku-well settings-toggle">
-                <input type="checkbox" v-model="mapState.showRoadDebug" />
-                Show road graph overlay
-            </label>
+            <p class="pane-heading">GPS</p>
+            <div class="toggle-list haiku-well settings-toggle">
+                <label>
+                    <input type="checkbox" v-model="mapState.showGpsRoute" />
+                    Show route to marked stops
+                </label>
+            </div>
+            <button type="button" class="haiku-button" @click="resetGpsRoute()">
+                Clear all marked stops
+            </button>
+            <p class="placeholder">
+                The route always ends at Alpha (it starts there too, until you complete a stop)
+                and visits every marked stop by the shortest path. Each leg is colored by the
+                highest-priority action waiting at the stop it leads to. Regular roads are
+                always usable; these road types are optional:
+            </p>
+            <ul class="toggle-list haiku-well">
+                <li>
+                    <label>
+                        <input type="checkbox" v-model="gpsRoadKinds.shortcut" />
+                        Shortcut
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input type="checkbox" v-model="gpsRoadKinds['risky-shortcut']" />
+                        Risky Shortcut
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input type="checkbox" v-model="gpsRoadKinds.offroad" />
+                        Offroad
+                    </label>
+                </li>
+            </ul>
+
+            <template v-if="listRoadTags().length > 0">
+                <p class="placeholder">
+                    Tagged routes need something special before they can be used, and are toggled
+                    individually:
+                </p>
+                <ul class="toggle-list haiku-well">
+                    <li v-for="tag in listRoadTags()" :key="tag">
+                        <label>
+                            <input type="checkbox" v-model="gpsTags[tag]" />
+                            {{ tag }}
+                        </label>
+                    </li>
+                </ul>
+            </template>
+
+            <p v-if="gpsProgress.currentStart !== GPS_START_POI" class="placeholder">
+                Route now starts from "{{ gpsProgress.currentStart }}" (last stop completed).
+                <button type="button" class="haiku-button" @click="resetGpsProgress()">
+                    Reset to Alpha
+                </button>
+            </p>
 
             <p class="pane-heading">Route editor</p>
             <div class="toggle-list haiku-well settings-toggle route-editor-panel">
@@ -171,6 +246,10 @@ onUnmounted(() => {
                             Set edge direction (click an edge to cycle)
                         </label>
                         <label>
+                            <input type="radio" value="set-tag" v-model="roadEditor.tool" />
+                            Set edge tag (click an edge)
+                        </label>
+                        <label>
                             <input type="radio" value="delete" v-model="roadEditor.tool" />
                             Delete (click junction/edge/point)
                         </label>
@@ -180,9 +259,11 @@ onUnmounted(() => {
                         or a path point to delete it. Use "delete" mode to remove junctions, edges, or
                         path points, "add path point" mode to click an edge and insert a bend there,
                         "set edge type" mode to click through Road → Shortcut → Risky Shortcut →
-                        Optional → Offroad, or "set edge direction" mode to click through Bidirectional
-                        → One-way (from → to) → One-way (to → from) — an arrow shows the travel
-                        direction on one-way edges.
+                        Offroad, "set edge direction" mode to click through Bidirectional → One-way
+                        (from → to) → One-way (to → from) (an arrow shows the travel direction on
+                        one-way edges), or "set edge tag" mode to click an edge and type a tag (e.g.
+                        "North Cave") — tagged edges get their own toggle in GPS settings, on top of
+                        whatever their type already requires.
                     </p>
                     <ul class="route-editor-legend">
                         <li v-for="entry in edgeKindLegend" :key="entry.label">

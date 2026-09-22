@@ -67,13 +67,17 @@ export interface RoadEdge {
     from: string;
     to: string;
     path?: [number, number][];
-    /**
-     * Routing behavior, applied later. Defaults to 'road' when omitted.
-     * 'optional' edges are meant to be individually toggled on/off.
-     */
-    kind?: 'road' | 'shortcut' | 'risky-shortcut' | 'optional' | 'offroad';
+    /** Routing behavior, applied later. Defaults to 'road' when omitted. */
+    kind?: 'road' | 'shortcut' | 'risky-shortcut' | 'offroad';
     /** Travel direction. Defaults to 'bidirectional' when omitted. */
     direction?: 'bidirectional' | 'forward' | 'backward';
+    /**
+     * Free-form, individually-toggled unlock, e.g. 'North Cave' for a route
+     * that needs something special done before it can be used. When set,
+     * this replaces `kind` as the gate for GPS routing — the edge's kind is
+     * then just its color/behavior, not a separate toggle to also satisfy.
+     */
+    tag?: string;
 }
 
 /** Authoring format: POI endpoints come from data_poi.ts at resolve time. */
